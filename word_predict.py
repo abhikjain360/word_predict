@@ -15,7 +15,7 @@ cursor = conn.cursor()
 
 #main GUI window
 mainWindow = Tk(screenName=":0")
-mainWindow.geometry("700x410")
+mainWindow.geometry("700x430")
 mainWindow.configure(bg="#151515")
 
 #configuring columns for the grif
@@ -23,13 +23,28 @@ mainWindow.grid_columnconfigure(0, weight=1)
 mainWindow.grid_columnconfigure(1, weight=1)
 mainWindow.grid_columnconfigure(2, weight=1)
 
-#configuring rows for the grid
-for i in range(16):
-    mainWindow.grid_rowconfigure(i, weight=1)
+#viewer text: to display text
+viewer = Text(mainWindow, bg="white", bd=0, font="monospaced 14", width=40, height=21)
+viewer.grid(row=0, column=1, rowspan=2, pady=10)
+
+def clearViewer():
+    viewer.delete(1.0, END)
+    predictions.delete(0,END)
+    word.delete(0, END)
+
+clrBtn = Button(mainWindow, text="CLEAR", fg='red', command=clearViewer)
+clrBtn.grid(row=2, column=1)
+
+def onSelect(event):
+    widg = event.widget
+    index = int(widg.curselection()[0])
+    value = str(widg.get(index)) + " "
+    viewer.insert(END, value)
 
 #predictions listbox: to display predictions
 predictions = Listbox(mainWindow, bg="#636363", bd=0, font="verdana 14", height=18)
 predictions.grid(row=1, column=0, padx=10)
+predictions.bind("<<ListboxSelect>>", onSelect)
 
 #String variable to get input
 sv = StringVar()
@@ -51,10 +66,6 @@ def StartInput():
 word = Entry(mainWindow, bg="#B3B3B3", bd=2, font="verdana 14", fg="black", relief=FLAT, width=20, 
             textvariable=sv, validate="key", validatecommand=StartInput)
 word.grid(row=0, column=0, padx=10, pady=10)
-
-#viewer text: to display text
-viewer = Text(mainWindow, bg="white", bd=0, font="monospaced 14", width=40, height=21)
-viewer.grid(row=0, column=1, rowspan=2, pady=10)
 
 #infinite loop for mainWindow untill stopped by the user
 mainWindow.mainloop()
