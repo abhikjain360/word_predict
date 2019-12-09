@@ -5,62 +5,56 @@ import libraries :
 '''
 import sqlite3
 from tkinter import *
+import time
 
-#method to make connection with database and return a cursor to execute commands
-def establishConnection():
-    #establishing connection with database
-    conn = sqlite3.connect('words.db')
+#establishing connection with database
+conn = sqlite3.connect('words.db')
 
-    #setting a cursor to execute database queries
-    cursor = conn.cursor()
+#setting a cursor to execute database queries
+cursor = conn.cursor()
 
-    return cursor
+#main GUI window
+mainWindow = Tk(screenName=":0")
+mainWindow.geometry("700x410")
+mainWindow.configure(bg="#151515")
 
-def makeGUI():
-    #main GUI window
-    mainWindow = Tk(screenName=":0")
-    mainWindow.geometry("700x410")
-    mainWindow.configure(bg="#151515")
+#configuring columns for the grif
+mainWindow.grid_columnconfigure(0, weight=1)
+mainWindow.grid_columnconfigure(1, weight=1)
+mainWindow.grid_columnconfigure(2, weight=1)
 
-    sv = StringVar(mainWindow)
+#configuring rows for the grid
+for i in range(16):
+    mainWindow.grid_rowconfigure(i, weight=1)
 
-    #configuring columns for the grif
-    mainWindow.grid_columnconfigure(0, weight=1)
-    mainWindow.grid_columnconfigure(1, weight=1)
-    mainWindow.grid_columnconfigure(2, weight=1)
+#predictions listbox: to display predictions
+predictions = Listbox(mainWindow, bg="#636363", bd=0, font="verdana 14", height=18)
+predictions.grid(row=1, column=0, padx=10)
 
-    #configuring rows for the grid
-    for i in range(16):
-        mainWindow.grid_rowconfigure(i, weight=1)
-
-    #predictions listbox: to display predictions
-    predictions = Listbox(mainWindow, bg="#636363", bd=0, font="verdana 14", height=18)
-    predictions.grid(row=1, column=0, padx=10)
-
-    #word entry: to get input
-    word = Entry(mainWindow, bg="#B3B3B3", bd=2, font="verdana 14", fg="black", relief=FLAT, width=20, 
-                    textvariable=sv)
-    word.grid(row=0, column=0, padx=10, pady=10)
-
-    #viewer text: to display text
-    viewer = Text(mainWindow, bg="white", bd=0, font="monospaced 14", width=40, height=21)
-    viewer.grid(row=0, column=1, rowspan=2, pady=10)
-
-    #infinite loop for mainWindow untill stopped by the user
-    mainWindow.mainloop()
-
-    #returning StringVar to get input in main function
-    return sv
+#String variable to get input
+sv = StringVar()
 
 #method to make predictions and print them to listbox
-def getPredictions(s, cursor):
+def getPredictions(s):
     cursor.execute(f"SELECT word FROM unigram_freq WHERE word LIKE '{s}%' ;")
-    return cursor.fetchall()
+    return cursor.fetchmany(15)
 
-def main():
-    establishConnection()
+def StartInput():
+    w = sv.get()
+    s = getPredictions(w)
+    predictions.delete(0,END)
+    for i in s:
+        predictions.insert(END, i[0])
+    return True
 
-    sv = makeGUI()
+#word entry: to get input
+word = Entry(mainWindow, bg="#B3B3B3", bd=2, font="verdana 14", fg="black", relief=FLAT, width=20, 
+            textvariable=sv, validate="key", validatecommand=StartInput)
+word.grid(row=0, column=0, padx=10, pady=10)
 
-if __name__ == "__main__":
-    main()
+#viewer text: to display text
+viewer = Text(mainWindow, bg="white", bd=0, font="monospaced 14", width=40, height=21)
+viewer.grid(row=0, column=1, rowspan=2, pady=10)
+
+#infinite loop for mainWindow untill stopped by the user
+mainWindow.mainloop()
