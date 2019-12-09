@@ -82,5 +82,5 @@ word = Entry(mainWindow, bg="#B3B3B3", bd=2, font="verdana 14", fg="black", reli
              textvariable=sv, validate="key", validatecommand=StartInput)
 word.grid(row=0, column=0, padx=10, pady=10)
 
-# infinite loop for mainWindow untill stopped by the user (or by error, but let's hope that's not the case)
+# infinite loop for mainWindow untill stopped by the user (or by an serror, but let's hope that's not the case)
 mainWindow.mainloop()
